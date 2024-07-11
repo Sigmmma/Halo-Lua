@@ -100,7 +100,13 @@ end
 function Player:detectTickViolation()
 	local cur_tick = self:getTickIndex()
 
-	if self.last_tick ~= nil then
+	-- Handle tick index wrap-around case.
+	-- Tick index wraps around to 0 after 32 for normal servers, and 63 for lan.
+	local good_wrap_around = (
+		cur_tick == 0 and (self.last_tick == 32 or self.last_tick == 63)
+	)
+
+	if self.last_tick ~= nil and not good_wrap_around then
 		-- A tick delta greater than 1 means the server processed multiple
 		-- ticks for this player since the last server tick.
 		local tick_delta = cur_tick - self.last_tick
