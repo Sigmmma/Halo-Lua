@@ -2,8 +2,8 @@
 -- Refactor and decay added by Mimickal
 -- For SAPP
 
--- SAPP global https://halo-sapp.readthedocs.io/en/latest/scripting/global.html
-lua_api_version = "1.10.0.0"
+-- SAPP docs lie, this should be api_version not lua_api_version.
+api_version = "1.10.0.0"
 TICKS_PER_SEC = 30
 
 ---------------------------------
@@ -30,7 +30,7 @@ local players = {}
 -- Global function called by SAPP. Registers event handlers.
 -- See https://halo-sapp.readthedocs.io/en/latest/scripting/event.html
 function OnScriptLoad()
-	register_callback(cb['EVENT_TICK'],  'OnTick')
+	register_callback(cb['EVENT_TICK'],  'OnEventTick')
 	register_callback(cb['EVENT_JOIN'],  'OnPlayerJoin')
 	register_callback(cb['EVENT_LEAVE'], 'OnPlayerLeave')
 end
@@ -92,7 +92,7 @@ function Player:updateOnTick()
 	self:punishViolations()
 
 	-- This should happen last
-	for _, timer in self.timers do
+	for _, timer in pairs(self.timers) do
 		timer:tick()
 	end
 end
@@ -101,9 +101,9 @@ function Player:detectTickViolation()
 	local cur_tick = self:getTickIndex()
 
 	-- Handle tick index wrap-around case.
-	-- Tick index wraps around to 0 after 32 for normal servers, and 63 for lan.
+	-- Tick index wraps around to 0 at 32 for normal servers, and 64 for lan.
 	local good_wrap_around = (
-		cur_tick == 0 and (self.last_tick == 32 or self.last_tick == 63)
+		cur_tick == 0 and (self.last_tick == 31 or self.last_tick == 63)
 	)
 
 	if self.last_tick ~= nil and not good_wrap_around then
