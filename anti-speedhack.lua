@@ -62,8 +62,7 @@ Player = {}
 function Player:new(player_index)
 	-- Lua class magic. See https://www.lua.org/pil/16.1.html
 	local instance = {}
-	setmetatable(instance, self)
-	self.__index = self
+	setmetatable(instance, { __index = self })
 
 	-- This is our stuff
 	self.index = player_index
@@ -197,7 +196,10 @@ end
 
 function Player:printKickTimer()
 	local timer_in_secs = math.floor(self.timers.kick.value / TICKS_PER_SEC)
-	rprint(self.index, string.rep(' ', 25))
+
+	-- Vertically align outpuut
+	for _ = 2,26 do rprint(self.index, ' ') end
+
 	-- TODO clean this output up
 	rprint(self.index, '|cYou are moving illegally!|ncff0000')
 	rprint(self.index, '|tPossible issues:|tPlease fix or kick will occur in: ' .. timer_in_secs)
@@ -212,8 +214,8 @@ Timer = {}
 
 function Timer:new()
 	local instance = {}
-	setmetatable(instance, self)
-	self.__index = self
+	setmetatable(instance, { __index = self })
+
 	self.value = nil
 	return instance
 end
