@@ -71,6 +71,7 @@ function Player:new(player_index)
 		decay = Timer:new(),
 		kick = Timer:new(),
 		kill = Timer:new(),
+		log = Timer:new(),
 	}
 	self.violations = {
 		active = 0,
@@ -157,6 +158,7 @@ function Player:punishViolations()
 		end
 	else
 		self.timers.kick:clear()
+		self.timers.log:clear()
 	end
 
 	-- Kill the player if they've had too many violations in a short window.
@@ -195,6 +197,10 @@ function Player:kill()
 end
 
 function Player:printKickTimer()
+	-- Only print once per second. Reduces strain on the server.
+	if not self.timers.log:expired() then return end
+	self.timers.log:set(TICKS_PER_SEC)
+
 	local timer_in_secs = math.floor(self.timers.kick.value / TICKS_PER_SEC)
 
 	-- Vertically align outpuut
